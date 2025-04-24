@@ -2,6 +2,12 @@
 let gameData = {};
 let currentRoom = null;
 let currentPlayer = null;
+let playerRole = "";
+
+const locations = [
+  "Estación Espacial", "Crucero", "Banco", "Circo", "Hospital", "Escuela", "Museo", "Base Militar",
+  "Restaurante", "Teatro", "Submarino", "Aeropuerto", "Hotel", "Tren", "Cine"
+];
 
 function createGame() {
   const playerName = document.getElementById('playerName').value;
@@ -11,7 +17,10 @@ function createGame() {
   currentPlayer = playerName;
   gameData[roomCode] = {
     players: [playerName],
-    started: false
+    started: false,
+    roles: {},
+    location: "",
+    spy: ""
   };
   updateStatus(`Sala creada: ${roomCode}`);
   showLobby();
@@ -34,7 +43,9 @@ function joinGame() {
 
   currentRoom = roomCode;
   currentPlayer = playerName;
-  gameData[roomCode].players.push(playerName);
+  if (!gameData[roomCode].players.includes(playerName)) {
+    gameData[roomCode].players.push(playerName);
+  }
   updateStatus(`${playerName} se unió a la sala ${roomCode}`);
   showLobby();
 }
@@ -52,9 +63,23 @@ function showLobby() {
 }
 
 function startGame() {
-  gameData[currentRoom].started = true;
+  const room = gameData[currentRoom];
+  room.started = true;
+  room.location = locations[Math.floor(Math.random() * locations.length)];
+  const spyIndex = Math.floor(Math.random() * room.players.length);
+  room.spy = room.players[spyIndex];
+
+  room.players.forEach(player => {
+    if (player === room.spy) {
+      room.roles[player] = "Eres el ESPÍA. ¡Adivina la ubicación!";
+    } else {
+      room.roles[player] = `No eres espía. La ubicación es: ${room.location}`;
+    }
+  });
+
+  playerRole = room.roles[currentPlayer];
+  document.getElementById('roleInfo').innerText = playerRole;
   updateStatus("La partida ha comenzado");
-  alert("¡Repartan las cartas manualmente por ahora! Funcionalidad en desarrollo.");
 }
 
 function updateStatus(msg) {
