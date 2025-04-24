@@ -10,13 +10,19 @@
 <body>
   <div id="app">
     <h1>SpyfallBros</h1>
-    <div id="game">
-      <input type="text" id="playerName" placeholder="Tu nombre"/>
+    <input type="text" id="playerName" placeholder="Tu nombre"/>
+    <div>
       <button onclick="createGame()">Crear Sala</button>
       <input type="text" id="roomCode" placeholder="Código de sala"/>
       <button onclick="joinGame()">Unirse a Sala</button>
     </div>
     <div id="status"></div>
+
+    <div id="lobby" style="display:none;">
+      <h2>Jugadores en la sala:</h2>
+      <ul id="playersList"></ul>
+      <button onclick="startGame()">Comenzar Partida</button>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
