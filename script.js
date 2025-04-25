@@ -1,22 +1,16 @@
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, update, onValue, get, child } from "firebase/database";
-
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCwUzTEZnI_dCyYvuP71iK8V0iUZRFK_tM",
   authDomain: "spyfallbros.firebaseapp.com",
+  databaseURL: "https://spyfallbros-default-rtdb.firebaseio.com/",
   projectId: "spyfallbros",
   storageBucket: "spyfallbros.firebasestorage.app",
   messagingSenderId: "494278374346",
-  appId: "1:494278374346:web:46008869629a3609835533",
-  databaseURL: "https://spyfallbros-default-rtdb.firebaseio.com/"
+  appId: "1:494278374346:web:46008869629a3609835533"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 let currentRoom = null;
 let currentPlayer = null;
@@ -34,7 +28,7 @@ function createGame() {
   currentRoom = roomCode;
   currentPlayer = playerName;
 
-  set(ref(db, "rooms/" + roomCode), {
+  db.ref("rooms/" + roomCode).set({
     players: [playerName],
     started: false,
     roles: {},
@@ -54,14 +48,14 @@ function joinGame() {
   currentRoom = roomCode;
   currentPlayer = playerName;
 
-  const roomRef = ref(db, "rooms/" + roomCode);
-  get(roomRef).then(snapshot => {
-    if (!snapshot.exists()) {
+  const roomRef = db.ref("rooms/" + roomCode);
+  roomRef.once("value").then(snapshot => {
+    const room = snapshot.val();
+    if (!room) {
       updateStatus("Sala no encontrada");
       return;
     }
 
-    const room = snapshot.val();
     if (room.started) {
       updateStatus("La partida ya comenzó");
       return;
@@ -69,7 +63,7 @@ function joinGame() {
 
     if (!room.players.includes(playerName)) {
       room.players.push(playerName);
-      update(roomRef, { players: room.players });
+      roomRef.update({ players: room.players });
     }
 
     updateStatus("Te uniste a la sala " + roomCode);
@@ -80,9 +74,7 @@ function joinGame() {
 function listenToPlayers() {
   const list = document.getElementById('playersList');
   const lobby = document.getElementById('lobby');
-  const playersRef = ref(db, "rooms/" + currentRoom + "/players");
-
-  onValue(playersRef, snapshot => {
+  db.ref("rooms/" + currentRoom + "/players").on("value", snapshot => {
     const players = snapshot.val() || [];
     list.innerHTML = "";
     players.forEach(p => {
@@ -95,8 +87,8 @@ function listenToPlayers() {
 }
 
 function startGame() {
-  const roomRef = ref(db, "rooms/" + currentRoom);
-  get(roomRef).then(snapshot => {
+  const roomRef = db.ref("rooms/" + currentRoom);
+  roomRef.once("value").then(snapshot => {
     const room = snapshot.val();
     const players = room.players;
     const spyIndex = Math.floor(Math.random() * players.length);
@@ -110,16 +102,17 @@ function startGame() {
         : "No eres espía. La ubicación es: " + location;
     });
 
-    update(roomRef, {
+    roomRef.update({
       started: true,
       location: location,
       spy: spy,
       roles: roles
     });
 
-    get(child(roomRef, "roles/" + currentPlayer)).then(roleSnap => {
-      document.getElementById('roleInfo').innerText = roleSnap.val();
-    });
+    db.ref("rooms/" + currentRoom + "/roles/" + currentPlayer).once("value")
+      .then(roleSnap => {
+        document.getElementById('roleInfo').innerText = roleSnap.val();
+      });
 
     updateStatus("Partida iniciada");
   });
