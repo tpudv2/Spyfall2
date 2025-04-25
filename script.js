@@ -95,12 +95,8 @@ function listenToRoom() {
   db.ref("rooms/" + currentRoom + "/roles/" + currentPlayer).on("value", snapshot => {
     const role = snapshot.val();
     if (role) {
-      document.getElementById('introScreen').style.display = 'flex';
-      setTimeout(() => {
-        document.getElementById('introScreen').style.display = 'none';
-        document.getElementById('roleInfo').innerText = role;
-        startSuggestions();
-      }, 3000);
+      document.getElementById('roleInfo').innerText = role;
+      startSuggestions();
     }
   });
 
