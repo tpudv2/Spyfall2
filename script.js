@@ -96,6 +96,7 @@ function listenToRoom() {
     const role = snapshot.val();
     if (role) {
       document.getElementById('roleInfo').innerText = role;
+      startSuggestions();
     }
   });
 
