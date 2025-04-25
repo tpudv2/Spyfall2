@@ -14,7 +14,7 @@ const db = firebase.database();
 
 let currentRoom = null;
 let currentPlayer = null;
-let playerRole = "";
+let isCreator = false;
 
 const locations = [
   "Estación Espacial", "Crucero", "Banco", "Circo", "Hospital", "Escuela", "Museo", "Base Militar",
@@ -27,8 +27,10 @@ function createGame() {
   const roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
   currentRoom = roomCode;
   currentPlayer = playerName;
+  isCreator = true;
 
   db.ref("rooms/" + roomCode).set({
+    creator: playerName,
     players: [playerName],
     started: false,
     roles: {},
@@ -36,7 +38,7 @@ function createGame() {
     spy: ""
   }).then(() => {
     updateStatus("Sala creada: " + roomCode);
-    listenToPlayers();
+    listenToRoom();
   });
 }
 
@@ -61,19 +63,24 @@ function joinGame() {
       return;
     }
 
+    isCreator = (room.creator === playerName);
+
     if (!room.players.includes(playerName)) {
       room.players.push(playerName);
       roomRef.update({ players: room.players });
     }
 
     updateStatus("Te uniste a la sala " + roomCode);
-    listenToPlayers();
+    listenToRoom();
   });
 }
 
-function listenToPlayers() {
+function listenToRoom() {
   const list = document.getElementById('playersList');
   const lobby = document.getElementById('lobby');
+  const startBtn = document.getElementById('startBtn');
+  const endBtn = document.getElementById('endBtn');
+
   db.ref("rooms/" + currentRoom + "/players").on("value", snapshot => {
     const players = snapshot.val() || [];
     list.innerHTML = "";
@@ -84,9 +91,21 @@ function listenToPlayers() {
     });
     lobby.style.display = 'block';
   });
+
+  db.ref("rooms/" + currentRoom + "/roles/" + currentPlayer).on("value", snapshot => {
+    const role = snapshot.val();
+    if (role) {
+      document.getElementById('roleInfo').innerText = role;
+    }
+  });
+
+  startBtn.disabled = !isCreator;
+  endBtn.disabled = !isCreator;
 }
 
 function startGame() {
+  if (!isCreator) return;
+
   const roomRef = db.ref("rooms/" + currentRoom);
   roomRef.once("value").then(snapshot => {
     const room = snapshot.val();
@@ -108,13 +127,13 @@ function startGame() {
       spy: spy,
       roles: roles
     });
+  });
+}
 
-    db.ref("rooms/" + currentRoom + "/roles/" + currentPlayer).once("value")
-      .then(roleSnap => {
-        document.getElementById('roleInfo').innerText = roleSnap.val();
-      });
-
-    updateStatus("Partida iniciada");
+function endGame() {
+  if (!isCreator) return;
+  db.ref("rooms/" + currentRoom).remove().then(() => {
+    window.location.reload();
   });
 }
 

@@ -9,7 +9,8 @@
 </head>
 <body>
   <div id="app">
-    <img src="spy.png" alt="Espía" style="width:120px; margin-top:20px;"/>
+    <p id="welcome">perritos y fichines vault</p>
+    <img src="https://i.imgur.com/ohYQakX.png" alt="Espía" style="width:120px; margin-top:10px;"/>
     <h1>SpyfallBros</h1>
     <input type="text" id="playerName" placeholder="Tu nombre" />
     <div>
@@ -22,7 +23,8 @@
     <div id="lobby" style="display:none;">
       <h2>Jugadores en la sala:</h2>
       <ul id="playersList"></ul>
-      <button onclick="startGame()">Comenzar Partida</button>
+      <button id="startBtn" onclick="startGame()">Comenzar Partida</button>
+      <button id="endBtn" onclick="endGame()">Finalizar Partida</button>
     </div>
 
     <div id="gameInfo">
