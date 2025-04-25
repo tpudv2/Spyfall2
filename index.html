@@ -2,19 +2,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SpyfallBros</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpyfallBros Firebase</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
     <img src="spy.png" alt="Espía" style="width:120px; margin-top:20px;"/>
     <h1>SpyfallBros</h1>
-    <input type="text" id="playerName" placeholder="Tu nombre"/>
+    <input type="text" id="playerName" placeholder="Tu nombre" />
     <div>
       <button onclick="createGame()">Crear Sala</button>
-      <input type="text" id="roomCode" placeholder="Código de sala"/>
+      <input type="text" id="roomCode" placeholder="Código de sala" />
       <button onclick="joinGame()">Unirse a Sala</button>
     </div>
     <div id="status"></div>
@@ -29,6 +29,9 @@
       <h2 id="roleInfo"></h2>
     </div>
   </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
