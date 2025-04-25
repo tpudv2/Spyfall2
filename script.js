@@ -1,5 +1,5 @@
 
-let gameData = {};
+let gameData = JSON.parse(localStorage.getItem("spyfallGameData")) || {};
 let currentRoom = null;
 let currentPlayer = null;
 let playerRole = "";
@@ -8,6 +8,10 @@ const locations = [
   "Estación Espacial", "Crucero", "Banco", "Circo", "Hospital", "Escuela", "Museo", "Base Militar",
   "Restaurante", "Teatro", "Submarino", "Aeropuerto", "Hotel", "Tren", "Cine"
 ];
+
+function saveGameData() {
+  localStorage.setItem("spyfallGameData", JSON.stringify(gameData));
+}
 
 function createGame() {
   const playerName = document.getElementById('playerName').value;
@@ -22,6 +26,7 @@ function createGame() {
     location: "",
     spy: ""
   };
+  saveGameData();
   updateStatus(`Sala creada: ${roomCode}`);
   showLobby();
 }
@@ -30,6 +35,8 @@ function joinGame() {
   const playerName = document.getElementById('playerName').value;
   const roomCode = document.getElementById('roomCode').value.toUpperCase();
   if (!playerName || !roomCode) return alert("Faltan datos");
+
+  gameData = JSON.parse(localStorage.getItem("spyfallGameData")) || {};
 
   if (!gameData[roomCode]) {
     updateStatus(`Sala ${roomCode} no encontrada`);
@@ -46,6 +53,7 @@ function joinGame() {
   if (!gameData[roomCode].players.includes(playerName)) {
     gameData[roomCode].players.push(playerName);
   }
+  saveGameData();
   updateStatus(`${playerName} se unió a la sala ${roomCode}`);
   showLobby();
 }
@@ -77,6 +85,7 @@ function startGame() {
     }
   });
 
+  saveGameData();
   playerRole = room.roles[currentPlayer];
   document.getElementById('roleInfo').innerText = playerRole;
   updateStatus("La partida ha comenzado");
